@@ -1,28 +1,87 @@
 const mongoose = require("mongoose");
+const { Schema } = mongoose;
 
-const messageSchema = new mongoose.Schema(
-  {
-    update_id: Number,
-    message: {
-      message_id: Number,
-      from: {
-        id: Number,
-        is_bot: Boolean,
-        first_name: String,
-        username: String,
-        language_code: String,
+const MessageSchema = new Schema({
+  update_id: {
+    type: Number,
+    required: true,
+  },
+  message: {
+    message_id: {
+      type: Number,
+      required: true,
+    },
+    from: {
+      id: {
+        type: Number,
+        required: true,
       },
-      chat: {
-        id: Number,
-        first_name: String,
-        username: String,
+      is_bot: {
+        type: Boolean,
+        required: true,
+      },
+      first_name: {
+        type: String,
+        required: true,
+      },
+      username: {
+        type: String,
+        required: true,
+      },
+      language_code: {
         type: String,
       },
-      date: Number,
-      text: String,
+    },
+    chat: {
+      id: {
+        type: Number,
+        required: true,
+      },
+      first_name: {
+        type: String,
+        required: false,
+      },
+      username: {
+        type: String,
+        required: false,
+      },
+      title: {
+        type: String,
+        required: false
+      },
+      type: {
+        type: String,
+        required: true,
+        enum: ["private", "group", "supergroup", "channel"],
+      },
+    },
+    media_group_id: {
+      type: String,
+      required: false
+    },
+    date: {
+      type: Number,
+      required: true,
+    },
+    text: {
+      type: String,
+      required: false,
+    },
+    entities: {
+      type: Array,
+      required: false,
+    },
+    photo: {
+      type: Array,
+      required: false,
+    },
+    video: {
+      type: Array,
+      required: false,
     },
   },
-  { strict: false }
-);
+});
 
-module.exports = mongoose.model("Message", messageSchema);
+const Message = mongoose.model("Message", MessageSchema);
+
+export default Message;

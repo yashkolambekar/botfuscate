@@ -1,24 +1,55 @@
 import express from "express";
-import axios from "axios";
-import fs from "fs";
-import { constructUrl } from "../functions/urlhelpers";
+import {
+  getAllMessages,
+  getMessagesByChatId,
+  saveMessage,
+} from "../functions/message";
+import { isNumberObject } from "util/types";
+import { getAllChats } from "../functions/chat";
 
 const v1Router = express.Router();
 
 v1Router.post("/webhook", (req, res) => {
-  console.log(req.body);
-  fs.writeFileSync(`./messages/${req.body.update_id}.json`, JSON.stringify(req.body));
-  if (req.body.message) {
-    console.log("is a message");
-    if (req.body.message.photo) {
-      console.log(req.body.message.photo[0]);
-    }
-  } else {
-    console.log("not a message");
-  }
+  saveMessage(req.body);
   res.json({
     success: true,
   });
+});
+
+v1Router.get("/messages", async (req, res) => {
+
+  if (req.query.chat != undefined) {
+    if(isNaN(+req.query.chat)){
+      res.sendStatus(400);
+      return;
+    }
+    getMessagesByChatId(Number(req.query.chat))
+      .then((nestedres) => {
+        res.json(nestedres);
+        return;
+      })
+      .catch((err) => {
+        console.error(err);
+        res.sendStatus(500);
+        return;
+      });
+  }
+  
+  getAllMessages()
+    .then((nestedres) => {
+      res.json(nestedres);
+      return;
+    })
+    .catch((err) => {
+      console.error(err);
+      res.sendStatus(500);
+      return;
+    });
+});
+
+v1Router.get("/chats", async (req, res) => {
+  const chats = await getAllChats();
+  res.json(chats);
 });
 
 export default v1Router;
